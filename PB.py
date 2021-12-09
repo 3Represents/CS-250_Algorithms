@@ -17,60 +17,54 @@ def read_data():
 
 def bfs():
     data = read_data()
-    b, c = [], []
-    a = data[1]
-    for i in range(2, len(data)):
-        b += [data[i][0]]
-        c += [data[i][1]]
-    data += [b, c]
-
-    n, m, k, s, t = data[0]
-    s -= 1
-    t -= 1
-    adj = [[0 for _ in range(n+1)] for _ in range(n+1)]
-
-    for i in a:
-        adj[i-1][n] = adj[n][i-1] = 1
-    for i in range(m):
-        adj[b[i]-1][c[i]-1] = adj[c[i]-1][b[i]-1] = 1
+    n, m, _, s, t = data[0]
 
     if t == s:
         return 0
+
+    s -= 1
+    t -= 1
+    a, b, c = data[1], [], []
+    for i in range(2, len(data)):
+        b += [data[i][0]]
+        c += [data[i][1]]
+
+    adj = [[] for _ in range(n+1)]
+    for i in a:
+        adj[i-1] += [n]
+        adj[n] += [i-1]
+    for i in range(m):
+        adj[b[i]-1] += [c[i]-1]
+        adj[c[i]-1] += [b[i]-1]
 
     cost = 1
     visited = set()
     queue = []
     
-    for i in range(n+1):
-        if adj[s][i] > 0:
-            if i == t:
-                return cost
-            else:
-                queue += [i]
-                visited.add(i)
+    for i in adj[s]:
+        if i == t:
+            return cost
+        else:
+            queue += [i]
+            visited.add(i)
     
     while queue:
         cost += 1
         len_q = len(queue)
         
         for i in range(len_q):
-            for j in range(n+1):
-                if adj[queue[i]][j] > 0:
-                    if j == t:
-                        return cost
-                    elif not (j in visited):
-                        queue += [j]
-                        visited.add(j)
+            for j in adj[queue[i]]:
+                if j == t:
+                    return cost
+                elif not (j in visited):
+                    queue += [j]
+                    visited.add(j)
 
         queue = queue[len_q:]
 
     return -1
     
 
-def main():
+if __name__ == '__main__':
     cost = bfs()
     print(f'{cost}\n' if cost != -1 else 'Impossible\n')
-
-
-if __name__ == '__main__':
-    main()
