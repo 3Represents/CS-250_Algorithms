@@ -11,9 +11,8 @@ class BerlandTransport:
         self.fill_adj(data[1], data[2], data[3])
 
     def fill_adj(self, a, b, c):
-        for i in range(self.k-1):
-            for j in range(i+1, self.k):
-                self.adj[a[i]-1][self.n] = self.adj[a[j]-1][self.n] = self.adj[self.n][a[i]-1] = self.adj[self.n][a[j]-1] = 1
+        for i in a:
+            self.adj[i-1][self.n] = self.adj[self.n][i-1] = 1
 
         for i in range(self.m):
             self.adj[b[i]-1][c[i]-1] = self.adj[c[i]-1][b[i]-1] = 1
@@ -32,29 +31,30 @@ class BerlandTransport:
 
         cost = 1
         visited = set()
-        queue1, queue2 = [], []
+        queue = []
         
         for i in range(self.n+1):
             if self.adj[self.s-1][i] > 0:
                 if self.is_destination(i, cost):
                     return
                 else:
-                    queue1 += [i]
+                    queue += [i]
                     visited.add(i)
             
-        while queue1:
+        while queue:
             cost += 1
-            for i in queue1:
+            len_q = len(queue)
+            
+            for i in range(len_q):
                 for j in range(self.n+1):
-                    if self.adj[i][j] > 0:
+                    if self.adj[queue[i]][j] > 0:
                         if self.is_destination(j, cost):
                             return
                         elif not (j in visited):
-                            queue2 += [j]
+                            queue += [j]
                             visited.add(j)
 
-            queue1 = queue2
-            queue2 = []
+            queue = queue[len_q:]
 
     def result(self):
         self.bfs()
