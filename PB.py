@@ -2,90 +2,75 @@ import sys
 
 input = sys.stdin.readline
 
-class BerlandTransport:
-
-    def __init__(self, data):
-        self.n, self.m, self.k, self.s, self.t = data[0]
-        self.cost = -1
-        self.adj = [[0 for _ in range(self.n+1)] for _ in range(self.n+1)]
-        self.fill_adj(data[1], data[2], data[3])
-
-    def fill_adj(self, a, b, c):
-        for i in a:
-            self.adj[i-1][self.n] = self.adj[self.n][i-1] = 1
-
-        for i in range(self.m):
-            self.adj[b[i]-1][c[i]-1] = self.adj[c[i]-1][b[i]-1] = 1
-
-    def is_destination(self, city, cost):
-        if city == self.t - 1:
-            self.cost = cost
-            return True
-        else:
-            return False
-
-    def bfs(self):
-        if self.t == self.s:
-            self.cost = 0
-            return
-
-        cost = 1
-        visited = set()
-        queue = []
-        
-        for i in range(self.n+1):
-            if self.adj[self.s-1][i] > 0:
-                if self.is_destination(i, cost):
-                    return
-                else:
-                    queue += [i]
-                    visited.add(i)
-            
-        while queue:
-            cost += 1
-            len_q = len(queue)
-            
-            for i in range(len_q):
-                for j in range(self.n+1):
-                    if self.adj[queue[i]][j] > 0:
-                        if self.is_destination(j, cost):
-                            return
-                        elif not (j in visited):
-                            queue += [j]
-                            visited.add(j)
-
-            queue = queue[len_q:]
-
-    def result(self):
-        self.bfs()
-        print(f'{self.cost}\n' if self.cost != -1 else 'Impossible\n')
-
-
 def read_data():
     """
     Adapted from https://codeforces.com/blog/entry/71884
     """
-    data_raw = []
+    data = []
     while True:
         line = input()
         if line:
-            data_raw += [list(map(int, line.split()))]
+            data += [list(map(int, line.split()))]
         else:
-            return data_raw
+            return data
 
 
-def init_transport():
-    data_raw = read_data()
+def bfs():
+    data = read_data()
     b, c = [], []
-    data = [data_raw[0], data_raw[1]]
-    for i in range(2, len(data_raw)):
-        b += [data_raw[i][0]]
-        c += [data_raw[i][1]]
+    a = data[1]
+    for i in range(2, len(data)):
+        b += [data[i][0]]
+        c += [data[i][1]]
     data += [b, c]
+
+    n, m, k, s, t = data[0]
+    s -= 1
+    t -= 1
+    adj = [[0 for _ in range(n+1)] for _ in range(n+1)]
+
+    for i in a:
+        adj[i-1][n] = adj[n][i-1] = 1
+    for i in range(m):
+        adj[b[i]-1][c[i]-1] = adj[c[i]-1][b[i]-1] = 1
+
+    if t == s:
+        return 0
+
+    cost = 1
+    visited = set()
+    queue = []
     
-    return BerlandTransport(data)
+    for i in range(n+1):
+        if adj[s][i] > 0:
+            if i == t:
+                return cost
+            else:
+                queue += [i]
+                visited.add(i)
+    
+    while queue:
+        cost += 1
+        len_q = len(queue)
+        
+        for i in range(len_q):
+            for j in range(n+1):
+                if adj[queue[i]][j] > 0:
+                    if j == t:
+                        return cost
+                    elif not (j in visited):
+                        queue += [j]
+                        visited.add(j)
+
+        queue = queue[len_q:]
+
+    return -1
+    
+
+def main():
+    cost = bfs()
+    print(f'{cost}\n' if cost != -1 else 'Impossible\n')
 
 
 if __name__ == '__main__':
-    transport = init_transport()
-    transport.result()
+    main()
