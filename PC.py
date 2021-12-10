@@ -2,7 +2,7 @@ import sys
 
 input = sys.stdin.readline
 
-def read_data():
+def kruskal():
     line = input()
     data = [list(map(int, line.split()))]
     while True:
@@ -12,12 +12,13 @@ def read_data():
             line[:3] = list(map(int, line[:3]))
             data += [line]
         else:
-            return data
+            break
+    
+    n, m = data[0]
+    if m == 0:
+        print(0, 0, '\n')
+        return
 
-
-def main():
-    data = read_data()
-    n, _ = data[0]
     happy_red, happy_blue = dict(), dict()
     for prop in data[1:]:
         edge = (prop[0], prop[1])
@@ -29,26 +30,30 @@ def main():
     edges_red = sorted(happy_red, key=happy_red.get, reverse=True)
     edges_blue = sorted(happy_blue, key=happy_blue.get, reverse=True)
 
-    A, S = [], []
-    for v in range(1, n+1):
-        S += [{v}]
+    A = []
+    p = list(range(n + 1))
+    rank = [0 for _ in range(n + 1)]
+
+    def find_set(x):
+        while x != p[x]:
+            x = p[x]
+        return p[x]
+
+    def link(x, y):
+        if rank[x] > rank[y]:
+            p[y] = x
+        else:
+            p[x] = y
+            if rank[x] == rank[y]:
+                rank[y] += 1
+
+    def union(x, y):
+        link(find_set(x), find_set(y))
         
     for (u, v) in edges_red + edges_blue:
-        for i, s in enumerate(S):
-            if u in s:
-                id_u = i
-            if v in s:
-                id_v = i
-
-        if id_u != id_v:
+        if find_set(u) != find_set(v):
             A += [(u, v)]
-
-            if len(S[id_u]) > len(S[id_v]):
-                S[id_u] = S[id_u].union(S[id_v])
-                S.pop(id_v)
-            else:
-                S[id_v] = S[id_v].union(S[id_u])
-                S.pop(id_u)
+            union(u, v)
 
     res_red = sum(happy_red[edge] for edge in A if edge in happy_red)
     res_blue = sum(happy_blue[edge] for edge in A if edge in happy_blue)
@@ -56,4 +61,4 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
+    kruskal()
