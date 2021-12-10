@@ -15,6 +15,7 @@ def kruskal():
             break
     
     n, m = data[0]
+    
     if m == 0:
         print(0, 0, '\n')
         return
