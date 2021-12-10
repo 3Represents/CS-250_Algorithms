@@ -18,30 +18,22 @@ def read_data():
 def main():
     data = read_data()
     n, _ = data[0]
-    reds, blues = [], []
+    happy_red, happy_blue = dict(), dict()
     for prop in data[1:]:
-        if prop[3] == 'red':
-            reds += [prop]
-        else:
-            blues += [prop]
-    
-    happy, org = dict(), dict()
-    for prop in reds:
         edge = (prop[0], prop[1])
-        happy[edge] = prop[2]
-        org[edge] = prop[3]
-
-    for prop in blues:
-        (u, v) = (prop[0], prop[1])
-        if ((u, v) not in happy) and ((v, u) not in happy):
-            happy[(u, v)] = prop[2]
-            org[(u, v)] = prop[3]
+        if prop[3] == 'red':
+            happy_red[edge] = prop[2]
+        else:
+            happy_blue[edge] = prop[2]
+    
+    edges_red = sorted(happy_red, key=happy_red.get, reverse=True)
+    edges_blue = sorted(happy_blue, key=happy_blue.get, reverse=True)
 
     A, S = [], []
     for v in range(1, n+1):
         S += [{v}]
         
-    for (u, v) in sorted(happy, key=happy.get):
+    for (u, v) in edges_red + edges_blue:
         for i, s in enumerate(S):
             if u in s:
                 id_u = i
@@ -58,9 +50,9 @@ def main():
                 S[id_v] = S[id_v].union(S[id_u])
                 S.pop(id_u)
 
-    happy_red = sum(happy[edge] for edge in A if org[edge] == 'red')
-    happy_blue = sum(happy[edge] for edge in A if org[edge] == 'blue')
-    print(happy_red, happy_blue, '\n')
+    res_red = sum(happy_red[edge] for edge in A if edge in happy_red)
+    res_blue = sum(happy_blue[edge] for edge in A if edge in happy_blue)
+    print(res_red, res_blue, '\n')
     
 
 if __name__ == '__main__':
